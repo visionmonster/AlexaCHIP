@@ -87,7 +87,7 @@ def alexa():
        		"format": "audio/L16; rate=16000; channels=1"
    		}
 	}
-	with open('recording.wav') as inf:
+	with open('recording.wav', 'rb') as inf:
 		files = [
 				('file', ('request', json.dumps(d), 'application/json; charset=UTF-8')),
 				('file', ('audio', inf, 'audio/L16; rate=16000; channels=1'))
@@ -96,10 +96,10 @@ def alexa():
 	for v in r.headers['content-type'].split(";"):
 		if re.match('.*boundary.*', v):
 			boundary =  v.split("=")[1]
-	data = r.content.split(boundary)
+	data = r.content.split(boundary.encode('utf-8'))
 	for d in data:
 		if (len(d) >= 1024):
-			audio = d.split('\r\n\r\n')[1].rstrip('--')
+			audio = d.split(b'\r\n\r\n')[1]
 	with open("response.mp3", 'wb') as f:
 		f.write(audio)
 	os.system('mpg321 -q 1sec.mp3 response.mp3')
@@ -113,7 +113,7 @@ while True:
 	if val != last:
 		last = val
 		if val == '1' and recorded == True:
-			with open('recording.wav', 'w') as rf:
+			with open('recording.wav', 'wb') as rf:
 				rf.write(audio)
 			inp = None
 			alexa()
@@ -123,7 +123,7 @@ while True:
 			inp.setrate(16000)
 			inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
 			inp.setperiodsize(500)
-			audio = ""
+			audio = b""
 			with wave.open('beep.wav', 'rb') as f:
 				play(f)
 			l, data = inp.read()
