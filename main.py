@@ -10,7 +10,7 @@ import requests
 import json
 import re
 from memcache import Client
-
+import wave
 
 
 recorded = False
@@ -113,14 +113,19 @@ while True:
 	if val != last:
 		last = val
 		if val == '1' and recorded == True:
-			with open('recording.wav', 'wb') as rf:
-				rf.write(audio)
+			wf = wave.open('record.wav', 'wb')
+			wf.setnchannels(1)
+			wf.setsampwidth(2)
+			wf.setframerate(44100)
+			wf.writeframes(audio)
+			wf.close()
+			os.system('mplayer -ao pcm:fast:waveheader:file=recording.wav -srate 16000 -vo null -vc null record.wav')
 			inp = None
 			alexa()
 		elif val == '0':
 			inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL)
 			inp.setchannels(1)
-			inp.setrate(16000)
+			inp.setrate(44100)
 			inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
 			inp.setperiodsize(500)
 			audio = b""
