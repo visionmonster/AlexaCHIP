@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 
+#credentials
+creds.py
+
 # C extensions
 *.so
 
